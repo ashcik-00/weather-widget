@@ -19,9 +19,23 @@ const getCurrentWeather = async function (lat, lon) {
   return data;
 };
 
-navigator.geolocation.getCurrentPosition((coordinates) => {
-  getCurrentWeather(
-    coordinates.coords.latitude,
-    coordinates.coords.longitude
-  ).then((data) => console.log(data));
-});
+const getFiveDaysWeather = async function (lat, lon) {
+  const targetUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_Token}`;
+  const response = await fetch(targetUrl);
+  const data = await response.json();
+  return data;
+};
+
+function loadweather() {
+  navigator.geolocation.getCurrentPosition((coordinates) => {
+    getCurrentWeather(
+      coordinates.coords.latitude,
+      coordinates.coords.longitude
+    ).then((data) => console.log(data));
+
+    getFiveDaysWeather(
+      coordinates.coords.latitude,
+      coordinates.coords.longitude
+    ).then((data) => console.log(data));
+  });
+}
