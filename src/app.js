@@ -26,12 +26,33 @@ const getFiveDaysWeather = async function (lat, lon) {
   return data;
 };
 
+function KelvinToCelsius(temperature) {
+  return (temperature - 273.15).toFixed(0);
+}
+
+function renderCurrentWweather(iconId, celsiusTemp, condition) {
+  currentWeather.insertAdjacentHTML(
+    "afterbegin",
+    `<h2>Current Conditions</h2>
+        <img src="http://openweathermap.org/img/wn/${iconId}@2x.png" />
+        <div class="current">
+        <div class="temp">${celsiusTemp}℃</div>
+        <div class="condition">${condition}</div>
+        </div>`
+  );
+}
+
 function loadweather() {
   navigator.geolocation.getCurrentPosition((coordinates) => {
     getCurrentWeather(
       coordinates.coords.latitude,
       coordinates.coords.longitude
-    ).then((data) => console.log(data));
+    ).then((data) => {
+      const iconId = data.weather[0].icon;
+      const celsiusTemp = KelvinToCelsius(data.main.temp);
+      const condition = data.weather[0].description;
+      renderCurrentWweather(iconId, celsiusTemp, condition);
+    });
 
     getFiveDaysWeather(
       coordinates.coords.latitude,
