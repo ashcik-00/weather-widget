@@ -30,6 +30,10 @@ function KelvinToCelsius(temperature) {
   return (temperature - 273.15).toFixed(0);
 }
 
+function getDay(date) {
+  return weekDays[new Date(date).getDay()];
+}
+
 function renderCurrentWweather(iconId, celsiusTemp, condition) {
   currentWeather.insertAdjacentHTML(
     "afterbegin",
@@ -40,6 +44,25 @@ function renderCurrentWweather(iconId, celsiusTemp, condition) {
         <div class="condition">${condition}</div>
         </div>`
   );
+}
+
+function renderForecast(forecastInformation) {
+  let html = "";
+
+  for (let i = 0; i < 5; i++) {
+    html += `<div class="day">
+        <h3>${getDay(forecastInformation.dates[i])}</h3>
+        <img src="http://openweathermap.org/img/wn/${
+          forecastInformation.icons[i]
+        }@2x.png" />
+        <div class="description">${forecastInformation.descriptions[i]}</div>
+        <div class="temp">
+          <span class="high">${
+            forecastInformation.max_temp[i]
+          }℃</span>/<span class="low">${forecastInformation.min_temp[i]}℃</span>
+        </div>
+      </div>`;
+  }
 }
 
 function loadweather() {
@@ -57,6 +80,63 @@ function loadweather() {
     getFiveDaysWeather(
       coordinates.coords.latitude,
       coordinates.coords.longitude
-    ).then((data) => console.log(data));
+    ).then((data) => {
+      const firstDay = data.list[0];
+      const secondDay = data.list[8];
+      const thirdDay = data.list[16];
+      const fourthDay = data.list[24];
+      const fifthDay = data.list[32];
+      const minTempArr = [];
+      const maxTempArr = [];
+
+      let minAux = Number.MAX_VALUE;
+      let maxAux = Number.MIN_VALUE;
+
+      for (let i = 0; i <= data.list.length - 8; i += 8) {
+        minAux = Number.MAX_VALUE;
+        maxAux = Number.MIN_VALUE;
+        for (let j = i; j < i + 7; j++) {
+          if (data.list[j].main.temp_min < minAux) {
+            minAux = data.list[j].main.temp_min;
+          }
+          if (data.list[j].main.temp_max > maxAux) {
+            maxAux = data.list[j].main.temp_max;
+          }
+        }
+        minTempArr.push(KelvinToCelsius(minAux));
+        maxTempArr.push(KelvinToCelsius(maxAux));
+      }
+
+      const datesArr = [
+        firstDay.dt_txt,
+        secondDay.dt_txt,
+        thirdDay.dt_txt,
+        fourthDay.dt_txt,
+        fifthDay.dt_txt,
+      ];
+      const iconsArr = [
+        firstDay.weather[0].icon,
+        secondDay.weather[0].icon,
+        thirdDay.weather[0].icon,
+        fourthDay.weather[0].icon,
+        fifthDay.weather[0].icon,
+      ];
+      const descArr = [
+        firstDay.weather[0].description,
+        secondDay.weather[0].description,
+        thirdDay.weather[0].description,
+        fourthDay.weather[0].description,
+        fifthDay.weather[0].description,
+      ];
+      const forecastInformation = {
+        dates: datesArr,
+        icons: iconsArr,
+        descriptions: descArr,
+        min_temp: minTempArr,
+        max_temp: maxTempArr,
+      };
+
+      renderForecast(forecastInformation);
+    });
   });
 }
