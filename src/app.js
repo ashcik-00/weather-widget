@@ -63,6 +63,8 @@ function renderForecast(forecastInformation) {
         </div>
       </div>`;
   }
+
+  forecast.insertAdjacentHTML("afterbegin", html);
 }
 
 function loadweather() {
